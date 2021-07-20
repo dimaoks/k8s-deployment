@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: php
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: php
+  template:
+    metadata:
+      labels:
+        app: php
+    spec:
+      containers:
+      - name: php
+        image: dimaoks/pfp-fpm:v1
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: varwww
+          mountPath: /var/www/dato-batono.dev.indevlab.com
+        - name: confd
+          mountPath: /etc/nginx/conf.d/
+      volumes:
+      - name: varwww
+        hostPath:
+          path: /www/dato-batono.dev.indevlab.com
+      - name: confd
+        hostPath:
+          path: /nginx
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: php
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
